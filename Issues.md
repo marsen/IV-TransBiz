@@ -55,10 +55,10 @@
 - 設計可支援 1000+ 產品的系統架構
 - 實作 Demo 時使用 10-20 個同類別產品
 - 追蹤項目：
-    - 價格變化
-    - BSR 趨勢
-    - 評分與評論數變化
-    - Buy Box 價格
+  - 價格變化
+  - BSR 趨勢
+  - 評分與評論數變化
+  - Buy Box 價格
 - 更新頻率：每日一次
 - 異常變化通知（ie. 價格變動 > 10%、小類別 BSR 變動 > 30）
 
@@ -75,10 +75,10 @@
 
 - 設定主產品（賣家自己的產品）
 - 加入 3-5 個競品 URL 進行多維度比較分析：
-    - 主產品 vs 各競品的價格差異
-    - BSR 排名差距
-    - 評分優劣勢
-    - 產品特色對比（從產品 bullet points 提取）
+  - 主產品 vs 各競品的價格差異
+  - BSR 排名差距
+  - 評分優劣勢
+  - 產品特色對比（從產品 bullet points 提取）
 - 生成競爭定位報告（LLM)
 - 提供 API 查詢競品資料
 
@@ -95,10 +95,10 @@
 
 - 分析產品當前表現生成優化建議
 - 建議類型：
-    - 標題優化（加入高搜尋量關鍵字）
-    - 定價調整（基於競品價格分析）
-    - 產品描述改進（突出差異化）
-    - 圖片建議（缺少哪些角度）
+  - 標題優化（加入高搜尋量關鍵字）
+  - 定價調整（基於競品價格分析）
+  - 產品描述改進（突出差異化）
+  - 圖片建議（缺少哪些角度）
 - 每個建議附上具體理由
 - 優先級排序（哪個改進影響最大）
 
@@ -114,25 +114,24 @@
 ## 提供的資源
 
 - 鼓勵使用 [Claude Code](https://www.youtube.com/playlist?list=PLf2m23nhTg1P5BsOHUOXyQz5RhfUSSVUi) 進行開發
-    - 帳號：experts@transbiz.co
-    - [Claude 登入 Magic Link Doc](https://docs.google.com/document/d/1ekvr754whTEcoRyn7hawEUhqXdm5ZvpyFJlqALmA_JQ/edit?usp=sharing)
-        
+  - 帳號：<experts@transbiz.co>
+  - [Claude 登入 Magic Link Doc](https://docs.google.com/document/d/1ekvr754whTEcoRyn7hawEUhqXdm5ZvpyFJlqALmA_JQ/edit?usp=sharing)
+
         [https://www.loom.com/share/00c38248b7e245dd8807c14b4213674c](https://www.loom.com/share/00c38248b7e245dd8807c14b4213674c)
-        
+
 - API Keys **(請勿將 API Token/Key 上傳至 GitHub)**
-    - Apify 帳密
-        
+  - Apify 帳密
+
         ```jsx
         帳號：[REDACTED]
         密碼：[REDACTED]
         ```
-        
-    - OpenAI API Key
-        
+
+  - OpenAI API Key
+
         ```jsx
         [REDACTED-OPENAI-KEY]
         ```
-        
 
 ## 重要提醒
 
@@ -192,17 +191,17 @@
 ## 補充規範（Submission Add-ons）
 
 - 使用 Supabase
-    - 後端資料庫使用 Supabase（PostgreSQL）。免費方案即可。
-    - 請提供 Supabase 專案的讀取或檢視權限邀請，或提供可重現的資料表建置腳本，方便我們預先檢視資料表與欄位設計。
-    - 需附上資料庫結構說明：ERD 圖或 SQL schema dump（其一）。
+  - 後端資料庫使用 Supabase（PostgreSQL）。免費方案即可。
+  - 請提供 Supabase 專案的讀取或檢視權限邀請，或提供可重現的資料表建置腳本，方便我們預先檢視資料表與欄位設計。
+  - 需附上資料庫結構說明：ERD 圖或 SQL schema dump（其一）。
 - 提交 GitHub 的同時，提供可用的 .env 檔案
-    - 請勿將任何金鑰提交到 GitHub 儲存庫。以壓縮檔形式，透過 Email 提供即可。
+  - 請勿將任何金鑰提交到 GitHub 儲存庫。以壓縮檔形式，透過 Email 提供即可。
 - 二面現場 Demo 要求
-    - 現場完整 Demo，請能清楚說明資料流：資料從哪裡輸入、經過哪些服務、儲存在哪裡、在哪裡可看到日誌。
-    - 現場開啟資料庫介面，說明資料表與欄位設計依據（例如 Firecrawl 抓取資料的正規化策略與擴充考量）。
-    - 若有使用快取（Redis），請說明快取了哪些資料、TTL 設定與合理性。
-    - 若實作加分項（如 log 監控、儀表板），請現場操作展示。
-    - 準備好一鍵啟動的指令與最小測試資料，以確保 Demo 流程順暢。
+  - 現場完整 Demo，請能清楚說明資料流：資料從哪裡輸入、經過哪些服務、儲存在哪裡、在哪裡可看到日誌。
+  - 現場開啟資料庫介面，說明資料表與欄位設計依據（例如 Firecrawl 抓取資料的正規化策略與擴充考量）。
+  - 若有使用快取（Redis），請說明快取了哪些資料、TTL 設定與合理性。
+  - 若實作加分項（如 log 監控、儀表板），請現場操作展示。
+  - 準備好一鍵啟動的指令與最小測試資料，以確保 Demo 流程順暢。
 
 ## 注意事項
 

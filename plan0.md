@@ -14,23 +14,28 @@
 ### 1.1 技術棧選擇
 
 **後端框架**
+
 - **建議**：Node.js + Express.js 或 Python + FastAPI
   - Node.js：與前端技術棧統一，適合高並發 I/O 操作
   - Python：生態系豐富（Celery、pandas），適合資料處理
 
 **資料庫**
+
 - **主資料庫**：Supabase (PostgreSQL)
 - **快取層**：Redis（需自行架設或使用雲端服務）
 - **任務佇列**：Bull (Node.js) 或 Celery (Python)
 
 **資料擷取**
+
 - Apify API（使用現有 Actor 或自建）
 - 建議使用：Amazon Product Details、Amazon Reviews
 
 **AI/LLM**
+
 - OpenAI API（GPT-4 或 GPT-3.5-turbo）
 
 **部署**
+
 - Docker + Docker Compose
 - 考慮使用 Railway、Render 或 Fly.io 進行部署
 
@@ -38,7 +43,7 @@
 
 ### 1.2 核心模組設計
 
-```
+```text
 ┌─────────────────────────────────────────────────────┐
 │                    API Gateway                       │
 │              (Express/FastAPI + Auth)                │
@@ -73,6 +78,7 @@
 ### 1.3 資料庫設計重點
 
 **核心資料表**
+
 1. `users` - 使用者帳戶
 2. `products` - 追蹤的產品主檔
 3. `product_snapshots` - 產品時序資料（價格、BSR、評分等）
@@ -82,11 +88,13 @@
 7. `scraping_jobs` - 爬蟲任務狀態追蹤
 
 **索引策略**
+
 - `product_snapshots`: `(product_id, created_at DESC)` - 時序查詢
 - `products`: `(user_id, category)` - 多租戶查詢
 - `competitors`: `(main_product_id)` - 競品查詢
 
 **分區考量**
+
 - `product_snapshots` 按月份分區（如資料量大）
 
 ---
@@ -94,15 +102,18 @@
 ### 1.4 API 設計架構
 
 **認證機制**
+
 - JWT Token 基礎認證
 - 使用 Supabase Auth（簡化實作）
 
 **Rate Limiting**
+
 - 每 IP 每分鐘 60 requests
 - 使用 Redis 儲存 counter
 
 **核心 API 端點**（詳細規格見 API_DESIGN.md）
-```
+
+```text
 POST   /api/auth/login
 GET    /api/products
 POST   /api/products
@@ -118,6 +129,7 @@ GET    /api/notifications
 ### 1.5 快取與佇列設計
 
 **Redis 快取策略**
+
 | 資料類型 | TTL | 理由 |
 |---------|-----|------|
 | 產品基本資訊 | 24h | 變動頻率低 |
@@ -126,11 +138,13 @@ GET    /api/notifications
 | LLM 優化建議 | 24h | 成本考量 |
 
 **任務佇列設計**
+
 - **高優先級**：使用者手動觸發的即時分析
 - **中優先級**：異常通知發送
 - **低優先級**：每日排程的產品資料更新
 
 **批次處理**
+
 - 每日凌晨 2:00 執行產品資料更新
 - 分批處理（每批 50 個產品），避免 API rate limit
 
@@ -139,6 +153,7 @@ GET    /api/notifications
 ### 1.6 監控與維運
 
 **Log 架構**
+
 - 使用 Winston (Node.js) 或 Loguru (Python)
 - Log Levels: ERROR > WARN > INFO > DEBUG
 - 關鍵 Log 點：
@@ -148,11 +163,13 @@ GET    /api/notifications
   - 任務佇列執行狀態
 
 **關鍵指標（SLA/SLO）**
+
 - API 可用性：99.5%
 - API 回應時間：P95 < 500ms
 - 每日資料更新完成率：99%
 
 **錯誤追蹤**
+
 - Sentry 或 LogRocket（加分項）
 - 關鍵錯誤即時告警（Email 或 Slack）
 
@@ -163,11 +180,13 @@ GET    /api/notifications
 ### 建議選擇
 
 **方案 A（推薦）：完整監控 + 優化建議**
+
 - ✅ 選項 1：產品資料追蹤系統
 - ✅ 選項 3：Listing 優化建議生成器
 - **理由**：展現完整的「監控 → 分析 → 建議」閉環，且技術多樣性高
 
 **方案 B（進階）：深度競品分析**
+
 - ✅ 選項 2：競品分析引擎
 - ✅ 選項 3：Listing 優化建議生成器
 - **理由**：展現平行資料處理與 LLM 整合能力
@@ -177,6 +196,7 @@ GET    /api/notifications
 ### 2.1 選項 1：產品資料追蹤系統（建議實作）
 
 **實作重點**
+
 1. **Apify 整合**
    - 選擇合適的 Actor（如 `apify/amazon-product-scraper`）
    - 實作 webhook 或輪詢機制接收結果
@@ -200,7 +220,9 @@ GET    /api/notifications
 ### 2.2 選項 3：Listing 優化建議生成器（建議實作）
 
 **實作重點**
+
 1. **Structured Prompt 設計**
+
    ```javascript
    const prompt = `
    分析以下 Amazon 產品資料，提供優化建議：
@@ -240,6 +262,7 @@ GET    /api/notifications
 ## 三、開發流程規劃
 
 ### Day 1-2：架構設計與文件撰寫
+
 - [ ] 完成系統架構圖（draw.io）
 - [ ] 撰寫 ARCHITECTURE.md
 - [ ] 撰寫 API_DESIGN.md
@@ -248,6 +271,7 @@ GET    /api/notifications
 - [ ] 建立專案架構與 Docker Compose
 
 ### Day 3-4：核心功能實作 - 產品追蹤
+
 - [ ] 實作 Apify API 整合
 - [ ] 實作產品資料 CRUD API
 - [ ] 實作排程系統（每日更新）
@@ -255,12 +279,14 @@ GET    /api/notifications
 - [ ] Redis 快取整合
 
 ### Day 5：核心功能實作 - 優化建議
+
 - [ ] 實作 OpenAI API 整合
 - [ ] 設計 Structured Prompt
 - [ ] 實作建議生成 API
 - [ ] 實作建議快取機制
 
 ### Day 6：測試與文件
+
 - [ ] 單元測試（目標 70% coverage）
 - [ ] 整合測試（真實 Apify/OpenAI API）
 - [ ] 撰寫 README.md
@@ -268,6 +294,7 @@ GET    /api/notifications
 - [ ] 生成 Swagger/Postman API 文件
 
 ### Day 7：Demo 準備與影片錄製
+
 - [ ] 準備 10-20 個同類別產品（如無線藍牙耳機）
 - [ ] 執行完整資料抓取與分析流程
 - [ ] 錄製 Demo 影片（5-10 分鐘）
@@ -290,19 +317,23 @@ GET    /api/notifications
 ### 4.2 風險識別與應對
 
 **風險 1：Apify API Rate Limit**
+
 - **應對**：實作請求佇列，控制並發數量（每秒最多 2 requests）
 - **應對**：使用 Redis 快取，避免重複請求
 
 **風險 2：OpenAI API 成本過高**
+
 - **應對**：使用 GPT-3.5-turbo 而非 GPT-4
 - **應對**：實作 24h 快取，相同產品不重複生成建議
 - **應對**：限制 prompt token 數量（< 2000 tokens）
 
 **風險 3：資料抓取不穩定**
+
 - **應對**：實作重試機制（最多 3 次，exponential backoff）
 - **應對**：記錄失敗任務，手動重試或告警
 
 **風險 4：時間不足**
+
 - **應對**：優先完成架構設計與文件（佔 50%）
 - **應對**：功能實作聚焦在 MVP，加分項視時間決定
 
@@ -326,16 +357,19 @@ GET    /api/notifications
 **推薦類別**：無線藍牙耳機
 
 **選擇理由**
+
 - 競爭激烈，價格與排名變化明顯
 - 產品資訊豐富（功能、規格、評論多）
 - 便於展示優化建議（如標題、定價、特色對比）
 
 **建議選取產品**
+
 - 1 個主產品（假設為賣家自己的產品）
 - 5-10 個競品（不同價格區間）
 - 5-10 個同類產品（用於追蹤系統展示）
 
 **範例 ASIN**（可搜尋 Amazon 實際 ASIN）
+
 - 主產品：B0CX23V8SY（假設）
 - 競品 1：B09ZV3KV3N（高價位）
 - 競品 2：B0B7T1VFW2（中價位）
@@ -346,6 +380,7 @@ GET    /api/notifications
 ## 七、交付清單檢查
 
 ### 文件交付
+
 - [ ] ARCHITECTURE.md
 - [ ] API_DESIGN.md
 - [ ] DATABASE_DESIGN.md
@@ -355,20 +390,24 @@ GET    /api/notifications
 - [ ] ERD 圖或 SQL schema dump
 
 ### 程式碼交付
+
 - [ ] 2 個核心功能完整實作
 - [ ] 單元測試（70%+ coverage）
 - [ ] Docker Compose 設定
 - [ ] .env.example
 
 ### API 文件
+
 - [ ] Swagger UI 或 Postman Collection
 
 ### Demo
+
 - [ ] 5-10 分鐘影片
 - [ ] 使用真實 Amazon 產品資料
 - [ ] 展示系統架構與資料流
 
 ### 安全性
+
 - [ ] .env 不上傳至 GitHub
 - [ ] 提供 Supabase 讀取權限或建置腳本
 - [ ] 壓縮 .env 透過 Email 提供
