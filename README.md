@@ -5,6 +5,38 @@
 1. **過早優化是萬惡之源，切勿畫蛇添足** — Donald Knuth
 2. **需要時才建立**，避免過度設計
 3. **先列 TODO，後動手**：所有工作需先寫入 `docs/TODO.md` 並排序；初期可接受抽象項目，但執行前必須具體化
+4. **Commit 遵循 Conventional Commits**：格式為 `<type>: <description>`
+
+### Commit 規範
+
+遵循 [Conventional Commits](https://www.conventionalcommits.org/) 格式：
+
+```text
+<type>: <subject>
+
+<body>
+
+<footer>
+```
+
+**Type 類型**：
+
+- `feat`: 新功能
+- `fix`: 修復 bug
+- `docs`: 文件變更
+- `style`: 格式調整（不影響程式碼運行）
+- `refactor`: 重構（不是新功能也不是修 bug）
+- `test`: 測試相關
+- `chore`: 建構工具或輔助工具變更
+
+**範例**：
+
+```bash
+feat: add product tracking endpoint
+fix: resolve database connection timeout
+docs: update API documentation
+refactor: simplify health check logic
+```
 
 ## 快速開始
 
