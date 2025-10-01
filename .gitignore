@@ -11,6 +11,9 @@ venv/
 env/
 ENV/
 
+# uv
+uv.lock
+
 # Environment Variables
 .env
 .env.local

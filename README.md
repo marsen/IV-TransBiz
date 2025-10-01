@@ -52,19 +52,40 @@ docker-compose up
 # 安裝 uv（如果尚未安裝）
 curl -LsSf https://astral.sh/uv/install.sh | sh
 
-# 使用 uv 建立虛擬環境並安裝依賴
-uv venv
-source .venv/bin/activate  # Linux/Mac
-# 或 .venv\Scripts\activate  # Windows
-
-# 安裝依賴
-uv pip install -r requirements.txt
+# 使用 uv 同步依賴（會自動建立虛擬環境）
+uv sync
 
 # 啟動服務
-uvicorn app.main:app --reload
+uv run uvicorn app.main:app --reload
 ```
 
 訪問 <http://localhost:8000/docs> 查看 API 文件
+
+## 開發工具
+
+### 程式碼檢查與格式化
+
+使用 `ruff` 進行 linting 和格式化：
+
+```bash
+# 安裝開發依賴
+uv sync --extra dev
+
+# 檢查程式碼
+uv run ruff check .
+
+# 自動修正
+uv run ruff check --fix .
+
+# 格式化程式碼
+uv run ruff format .
+```
+
+### 執行測試
+
+```bash
+uv run pytest
+```
 
 ## API 端點
 
