@@ -49,6 +49,13 @@ docker-compose up
 ### 方法二：本地執行
 
 ```bash
+# 建立虛擬環境
+python -m venv venv
+
+# 啟動虛擬環境
+source venv/bin/activate  # Linux/Mac
+# 或 venv\Scripts\activate  # Windows
+
 # 安裝依賴
 pip install -r requirements.txt
 
