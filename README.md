@@ -46,18 +46,19 @@ refactor: simplify health check logic
 docker-compose up
 ```
 
-### 方法二：本地執行
+### 方法二：本地執行（使用 uv）
 
 ```bash
-# 建立虛擬環境
-python -m venv venv
+# 安裝 uv（如果尚未安裝）
+curl -LsSf https://astral.sh/uv/install.sh | sh
 
-# 啟動虛擬環境
-source venv/bin/activate  # Linux/Mac
-# 或 venv\Scripts\activate  # Windows
+# 使用 uv 建立虛擬環境並安裝依賴
+uv venv
+source .venv/bin/activate  # Linux/Mac
+# 或 .venv\Scripts\activate  # Windows
 
 # 安裝依賴
-pip install -r requirements.txt
+uv pip install -r requirements.txt
 
 # 啟動服務
 uvicorn app.main:app --reload
