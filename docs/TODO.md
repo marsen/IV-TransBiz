@@ -5,8 +5,33 @@
 ✅ 基礎 FastAPI 專案已建立
 ✅ Health check endpoint 已實作
 ✅ Docker 環境已設定
+✅ 開發環境文件已完成（DEVELOPMENT.md）
+✅ Git 敏感資料已清理
 
 ## 待辦事項
+
+### Phase 0.5: API 基礎架構設計
+
+- [ ] API 文件工具設定
+  - [ ] 啟用 Swagger UI（FastAPI 內建）
+  - [ ] 啟用 ReDoc（FastAPI 內建）
+  - [ ] 研究並設定 Scalar（現代化文件介面）
+- [ ] 錯誤處理架構（最終防線模式）
+  - [ ] 建立自訂 Exception 類別（商業邏輯錯誤）
+  - [ ] 實作全域 Exception Handler（FastAPI middleware）
+  - [ ] 定義錯誤碼對照表（HTTP Status + 業務 code）
+- [ ] API Response 格式標準化
+  - [ ] 定義標準 JSON Response 格式
+  - [ ] 建立 Response Model（Pydantic）
+  - [ ] 實作 Response 包裝器
+- [ ] 簡易認證機制（API Key）
+  - [ ] 實作 API Key 驗證 middleware
+  - [ ] 環境變數管理（.env）
+  - [ ] TODO：未來升級為 Supabase JWT
+- [ ] RESTful API Endpoints 設計
+  - [ ] 撰寫 API_DESIGN.md（endpoint 規劃文件）
+  - [ ] 定義資源命名規範
+  - [ ] 設計 URL 結構與版本控制（/api/v1/）
 
 ### Phase 1: 環境建置與學習
 
