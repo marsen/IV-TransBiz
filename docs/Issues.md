@@ -111,28 +111,6 @@
 
 ---
 
-## 提供的資源
-
-- 鼓勵使用 [Claude Code](https://www.youtube.com/playlist?list=PLf2m23nhTg1P5BsOHUOXyQz5RhfUSSVUi) 進行開發
-  - 帳號：<experts@transbiz.co>
-  - [Claude 登入 Magic Link Doc](https://docs.google.com/document/d/1ekvr754whTEcoRyn7hawEUhqXdm5ZvpyFJlqALmA_JQ/edit?usp=sharing)
-
-        [https://www.loom.com/share/00c38248b7e245dd8807c14b4213674c](https://www.loom.com/share/00c38248b7e245dd8807c14b4213674c)
-
-- API Keys **(請勿將 API Token/Key 上傳至 GitHub)**
-  - Apify 帳密
-
-        ```jsx
-        帳號：[REDACTED]
-        密碼：[REDACTED]
-        ```
-
-  - OpenAI API Key
-
-        ```jsx
-        [REDACTED-OPENAI-KEY]
-        ```
-
 ## 重要提醒
 
 所有資料必須為真實即時資料：
