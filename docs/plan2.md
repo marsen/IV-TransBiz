@@ -714,13 +714,336 @@ def test_create_product_endpoint(client: TestClient):
     assert response.json()["asin"] == "B08N5WRWNW"
 ```
 
+## 錯誤處理策略（最終防線模式）
+
+### 錯誤處理設計原則
+
+**最終防線（Last Line of Defense）**：在 API 層使用全域 Exception Handler 捕捉所有錯誤，確保：
+
+1. 不會有未處理的例外暴露給客戶端
+2. 所有錯誤都以統一格式回應
+3. 敏感資訊不會洩漏
+
+### 錯誤分層架構
+
+```text
+1. Domain Layer (領域錯誤)
+   ├── ProductNotFoundError
+   ├── InvalidPriceError
+   └── BusinessRuleViolationError
+
+2. Use Case Layer (應用錯誤)
+   ├── ScrapingFailedError
+   ├── AIServiceUnavailableError
+   └── ResourceConflictError
+
+3. Infrastructure Layer (技術錯誤)
+   ├── DatabaseConnectionError
+   ├── ExternalAPIError
+   └── CacheError
+
+4. API Layer (HTTP 錯誤) ← 最終防線
+   └── Global Exception Handler
+       ├── 捕捉所有上層錯誤
+       ├── 轉換為 HTTP 狀態碼
+       └── 回傳標準錯誤格式
+```
+
+### 實作設計
+
+#### 1. Domain Layer - 自訂 Exception
+
+```python
+# domain/exceptions.py
+class DomainException(Exception):
+    """Domain 層基礎 Exception"""
+    def __init__(self, message: str, error_code: str):
+        self.message = message
+        self.error_code = error_code
+        super().__init__(message)
+
+class ProductNotFoundError(DomainException):
+    def __init__(self, product_id: str):
+        super().__init__(
+            message=f"Product {product_id} not found",
+            error_code="PRODUCT_NOT_FOUND"
+        )
+
+class InvalidPriceError(DomainException):
+    def __init__(self, price: float):
+        super().__init__(
+            message=f"Invalid price: {price}. Price must be positive",
+            error_code="INVALID_PRICE"
+        )
+
+class BusinessRuleViolationError(DomainException):
+    """業務規則違反（如：超過追蹤產品數量上限）"""
+    pass
+```
+
+#### 2. Use Case Layer - 應用錯誤
+
+```python
+# use_cases/exceptions.py
+class UseCaseException(Exception):
+    """Use Case 層基礎 Exception"""
+    def __init__(self, message: str, error_code: str):
+        self.message = message
+        self.error_code = error_code
+        super().__init__(message)
+
+class ScrapingFailedError(UseCaseException):
+    def __init__(self, asin: str, reason: str):
+        super().__init__(
+            message=f"Failed to scrape product {asin}: {reason}",
+            error_code="SCRAPING_FAILED"
+        )
+
+class AIServiceUnavailableError(UseCaseException):
+    def __init__(self):
+        super().__init__(
+            message="AI service is temporarily unavailable",
+            error_code="AI_SERVICE_UNAVAILABLE"
+        )
+```
+
+#### 3. Infrastructure Layer - 技術錯誤
+
+```python
+# infrastructure/exceptions.py
+class InfrastructureException(Exception):
+    """Infrastructure 層基礎 Exception"""
+    def __init__(self, message: str, error_code: str):
+        self.message = message
+        self.error_code = error_code
+        super().__init__(message)
+
+class DatabaseConnectionError(InfrastructureException):
+    def __init__(self, details: str):
+        super().__init__(
+            message=f"Database connection failed: {details}",
+            error_code="DB_CONNECTION_ERROR"
+        )
+
+class ExternalAPIError(InfrastructureException):
+    def __init__(self, service: str, status_code: int):
+        super().__init__(
+            message=f"External API {service} failed with status {status_code}",
+            error_code="EXTERNAL_API_ERROR"
+        )
+```
+
+#### 4. API Layer - 全域 Exception Handler（最終防線）
+
+```python
+# adapters/api/exception_handlers.py
+from fastapi import FastAPI, Request, status
+from fastapi.responses import JSONResponse
+from domain.exceptions import DomainException
+from use_cases.exceptions import UseCaseException
+from infrastructure.exceptions import InfrastructureException
+import logging
+
+logger = logging.getLogger(__name__)
+
+def register_exception_handlers(app: FastAPI):
+    """註冊所有 Exception Handlers"""
+
+    # Domain 錯誤 → 400 Bad Request
+    @app.exception_handler(DomainException)
+    async def domain_exception_handler(request: Request, exc: DomainException):
+        logger.warning(f"Domain error: {exc.message}", extra={"error_code": exc.error_code})
+        return JSONResponse(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            content={
+                "success": False,
+                "error": {
+                    "code": exc.error_code,
+                    "message": exc.message,
+                    "type": "domain_error"
+                }
+            }
+        )
+
+    # Use Case 錯誤 → 422 Unprocessable Entity 或 503
+    @app.exception_handler(UseCaseException)
+    async def use_case_exception_handler(request: Request, exc: UseCaseException):
+        # 根據錯誤類型決定 HTTP 狀態碼
+        if "UNAVAILABLE" in exc.error_code:
+            status_code = status.HTTP_503_SERVICE_UNAVAILABLE
+        else:
+            status_code = status.HTTP_422_UNPROCESSABLE_ENTITY
+
+        logger.error(f"Use case error: {exc.message}", extra={"error_code": exc.error_code})
+        return JSONResponse(
+            status_code=status_code,
+            content={
+                "success": False,
+                "error": {
+                    "code": exc.error_code,
+                    "message": exc.message,
+                    "type": "use_case_error"
+                }
+            }
+        )
+
+    # Infrastructure 錯誤 → 500 Internal Server Error
+    @app.exception_handler(InfrastructureException)
+    async def infrastructure_exception_handler(request: Request, exc: InfrastructureException):
+        logger.error(f"Infrastructure error: {exc.message}", extra={"error_code": exc.error_code})
+        return JSONResponse(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            content={
+                "success": False,
+                "error": {
+                    "code": exc.error_code,
+                    "message": "An internal error occurred",  # 不洩漏細節
+                    "type": "infrastructure_error"
+                }
+            }
+        )
+
+    # 未預期錯誤 → 500（最終防線）
+    @app.exception_handler(Exception)
+    async def global_exception_handler(request: Request, exc: Exception):
+        logger.critical(f"Unhandled exception: {str(exc)}", exc_info=True)
+        return JSONResponse(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            content={
+                "success": False,
+                "error": {
+                    "code": "INTERNAL_SERVER_ERROR",
+                    "message": "An unexpected error occurred",
+                    "type": "system_error"
+                }
+            }
+        )
+```
+
+#### 5. 標準 Response 格式
+
+```python
+# adapters/api/schemas/response.py
+from pydantic import BaseModel
+from typing import Generic, TypeVar, Optional
+
+T = TypeVar('T')
+
+class ErrorDetail(BaseModel):
+    """錯誤詳情"""
+    code: str
+    message: str
+    type: str  # domain_error, use_case_error, infrastructure_error, system_error
+
+class APIResponse(BaseModel, Generic[T]):
+    """統一 API Response 格式"""
+    success: bool
+    data: Optional[T] = None
+    error: Optional[ErrorDetail] = None
+
+# 使用範例
+class ProductResponse(BaseModel):
+    asin: str
+    title: str
+    price: float
+
+# Success Response
+{
+    "success": true,
+    "data": {
+        "asin": "B08N5WRWNW",
+        "title": "Example Product",
+        "price": 29.99
+    },
+    "error": null
+}
+
+# Error Response
+{
+    "success": false,
+    "data": null,
+    "error": {
+        "code": "PRODUCT_NOT_FOUND",
+        "message": "Product B08N5WRWNW not found",
+        "type": "domain_error"
+    }
+}
+```
+
+#### 6. FastAPI App 初始化
+
+```python
+# app/main.py
+from fastapi import FastAPI
+from adapters.api.exception_handlers import register_exception_handlers
+from adapters.api.lifespan import lifespan
+
+app = FastAPI(
+    title="Amazon Product Monitor",
+    version="0.1.0",
+    lifespan=lifespan
+)
+
+# 註冊全域 Exception Handlers（最終防線）
+register_exception_handlers(app)
+
+# 註冊 routers
+app.include_router(products.router, prefix="/api/v1")
+```
+
+### 錯誤碼對照表
+
+| 錯誤碼 | HTTP Status | 說明 | 層級 |
+|--------|-------------|------|------|
+| `PRODUCT_NOT_FOUND` | 404 | 產品不存在 | Domain |
+| `INVALID_PRICE` | 400 | 價格格式錯誤 | Domain |
+| `SCRAPING_FAILED` | 422 | 爬蟲失敗 | Use Case |
+| `AI_SERVICE_UNAVAILABLE` | 503 | AI 服務不可用 | Use Case |
+| `DB_CONNECTION_ERROR` | 500 | 資料庫連線失敗 | Infrastructure |
+| `EXTERNAL_API_ERROR` | 500 | 外部 API 錯誤 | Infrastructure |
+| `INTERNAL_SERVER_ERROR` | 500 | 未預期錯誤 | System |
+
+### 使用範例
+
+```python
+# use_cases/product/track_product.py
+from domain.exceptions import ProductNotFoundError
+from use_cases.exceptions import ScrapingFailedError
+
+class TrackProductUseCase:
+    async def execute(self, asin: str):
+        # 爬取產品資料
+        try:
+            product_data = await self.scraper.scrape_product(asin)
+        except Exception as e:
+            # 轉換為 Use Case 層錯誤
+            raise ScrapingFailedError(asin=asin, reason=str(e))
+
+        # 檢查產品是否存在
+        existing = await self.repository.find_by_asin(asin)
+        if existing:
+            raise ProductNotFoundError(product_id=asin)  # 會被 API 層轉為 404
+
+        # 儲存產品
+        await self.repository.save(product_data)
+```
+
+### 錯誤處理優勢
+
+1. **分層清晰**：每層定義自己的錯誤類型
+2. **最終防線**：全域 Handler 確保不會有裸露的 500 錯誤
+3. **統一格式**：所有錯誤回應格式一致
+4. **安全性**：Infrastructure 錯誤不洩漏敏感資訊
+5. **可追蹤**：錯誤碼 + 日誌方便 debug
+
 ## 下一步行動
 
 1. **討論並確認上述 Q1~Q3 的技術決策**
 2. 建立基礎目錄結構
 3. 定義核心 Entity（Product, Competitor, Snapshot）
-4. 實作第一個 Use Case（TrackProductUseCase）
-5. 撰寫對應的單元測試
+4. 實作錯誤處理架構（最終防線模式）
+5. 實作第一個 Use Case（TrackProductUseCase）
+6. 撰寫對應的單元測試
 
 ---
 
