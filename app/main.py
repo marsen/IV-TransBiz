@@ -7,6 +7,12 @@ from fastapi import FastAPI
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from scalar_fastapi import get_scalar_api_reference
+from supabase import Client, create_client
+
+from app.config import SUPABASE_ANON_KEY, SUPABASE_URL
+
+# 初始化 Supabase client
+supabase: Client = create_client(SUPABASE_URL, SUPABASE_ANON_KEY)
 
 app = FastAPI(
     title="Amazon Product Monitoring API",
@@ -52,7 +58,7 @@ async def root():
 @app.get(
     "/health",
     summary="健康檢查",
-    description="檢查 API 服務是否正常運作",
+    description="檢查 API 服務與資料庫連線是否正常",
     response_description="服務健康狀態與當前時間戳記",
     tags=["System"],
     responses={
@@ -63,6 +69,7 @@ async def root():
                     "example": {
                         "status": "healthy",
                         "timestamp": "2025-10-07T09:00:00.000000+00:00",
+                        "database": "connected",
                     }
                 }
             },
@@ -73,13 +80,22 @@ async def health_check():
     """健康檢查端點。
 
     用於監控服務是否正常運作，通常由負載平衡器或監控系統呼叫。
+    包含資料庫連線測試。
 
     Returns:
-        dict: 包含服務狀態與 UTC 時間戳記
+        dict: 包含服務狀態、UTC 時間戳記與資料庫連線狀態
     """
+    # 測試 Supabase 連線
+    db_status = "connected"
+    try:
+        supabase.auth.get_session()
+    except Exception as e:
+        db_status = f"error: {str(e)}"
+
     return {
         "status": "healthy",
         "timestamp": datetime.now(UTC).isoformat(),
+        "database": db_status,
     }
 
 
