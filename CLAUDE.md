@@ -112,6 +112,7 @@ FastAPI Application (Uvicorn + ASGI)
 2. **需要時才建立** - 避免過度設計
 3. **先列 TODO，後動手**：所有工作需先寫入 `docs/TODO.md` 並排序
 4. **Commit 遵循 Conventional Commits**：格式為 `<type>: <description>`
+5. **Fail-Fast 原則**：應用程式啟動時檢查必要環境變數，缺少時立即終止（不使用預設值）
 
 ### Commit 類型
 
