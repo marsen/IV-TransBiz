@@ -57,6 +57,21 @@ Pre-commit hooks 已設定（`.pre-commit-config.yaml`），會在 commit 時自
 - Ruff 格式化
 - Markdownlint 文件檢查
 
+**建議的 Commit 流程**：
+
+```bash
+# 1. 執行格式化（建議在 commit 前手動執行）
+uv run ruff format .
+
+# 2. 執行 git add
+git add .
+
+# 3. Commit（pre-commit hooks 會自動執行）
+git commit -m "feat: your commit message"
+
+# 注意：如果 pre-commit hooks 修改了檔案，需要重新 add 並再次 commit
+```
+
 ## 專案架構
 
 ### 目前狀態（Phase 0：基礎建置完成）
