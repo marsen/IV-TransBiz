@@ -12,9 +12,50 @@
 
 ### 🚧 Story 4.1: 使用者認證（P0 - MVP 必須）
 
-- [x] 設定 Supabase 連線與環境變數
+**Phase 1: 註冊功能 (Signup)** - 🚧 進行中
+
+測試案例 (TDD - RED):
+
+- [x] test_signup_success - 註冊成功 (201)
+- [x] test_signup_email_already_exists - Email 已存在 (400)
+- [ ] test_signup_invalid_email_format - 無效 email 格式 (422) 🔴 P0
+- [ ] test_signup_missing_email - 缺少 email 欄位 (422) 🔴 P0
+- [ ] test_signup_missing_password - 缺少 password 欄位 (422) 🔴 P0
+
+實作任務 (TDD - GREEN):
+
+- [ ] 建立 auth schemas (SignupRequest, SignupResponse)
+- [ ] 建立 auth router (`/api/v1/auth/signup`)
+- [ ] 註冊 router 到 main.py
+- [ ] 驗證測試通過 (GREEN)
+
+**Phase 2: 登入功能 (Login)** - ⏸️ 待開始
+
+測試案例:
+
+- [ ] test_login_success - 登入成功返回 JWT (200)
+- [ ] test_login_invalid_password - 錯誤密碼 (401)
+
+實作任務:
+
+- [ ] 建立 login endpoint (`/api/v1/auth/login`)
+- [ ] 驗證測試通過
+
+**Phase 3: 認證中介層 (Auth Middleware)** - ⏸️ 待開始
+
+測試案例:
+
+- [ ] test_unauthorized_access - 未登入訪問受保護 API (401)
+
+實作任務:
+
 - [ ] 實作 get_current_user() dependency
-- [ ] 測試 Supabase Auth（註冊/登入）
+- [ ] 為受保護 API 加上認證檢查
+- [ ] 驗證測試通過
+
+**Supabase 設定**:
+
+- [x] 設定 Supabase 連線與環境變數
 
 ### 📝 Story 1.1: 新增追蹤產品（P0 - MVP 必須）
 

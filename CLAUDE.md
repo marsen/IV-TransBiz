@@ -188,3 +188,180 @@ FastAPI Application (Uvicorn + ASGI)
 - **Demo 要求**：需準備 5-10 分鐘的 demo 影片展示真實資料
 - **安全性**：絕不將 API keys 提交至 Git - .env 另外提供
 - **測試覆蓋率**：核心邏輯目標達到 70%+ 測試覆蓋率
+
+---
+
+## 測試與 TDD 原則
+
+### TDD 開發流程
+
+本專案採用 **Test-Driven Development (TDD)** 開發主程式邏輯：
+
+```text
+1. RED - 先寫測試（測試會失敗）
+2. GREEN - 實作最簡單的程式碼讓測試通過
+3. REFACTOR - 重構優化程式碼
+```
+
+### 主程式定義（Clean Architecture）
+
+**主程式邏輯必須在 Use Case Layer**，不是 Adapter Layer。
+
+```text
+Adapter Layer (API)
+└── endpoint (薄薄的轉接層 - 只負責 HTTP 轉接，不寫測試)
+    ↓
+Use Case Layer (主程式) ← TDD 在這裡
+└── UseCase (業務邏輯 - 用單元測試保護)
+    ↓
+External Service (Supabase, Apify, etc.)
+```
+
+### 測試策略
+
+**只寫單元測試**：
+
+- ✅ **Domain Layer** - 測試 Entity、Value Object
+- ✅ **Use Case Layer** - 測試業務邏輯（主程式）
+- ❌ **Adapter Layer** - 薄薄的轉接層，不寫測試
+- ❌ **不寫 API 測試** - 用手動測試驗證（Scalar docs）
+- ❌ **不寫整合測試** - 專注在單元測試
+
+**測試範圍**：
+
+```text
+tests/
+└── unit/
+    ├── domain/          # Entity 和 Value Object 的測試
+    └── use_cases/       # Use Case 的測試（主程式邏輯）
+```
+
+### 測試風格規範
+
+**必須遵守的 3A 測試結構**：
+
+#### 1. 3A 區塊必須明確分隔
+
+```python
+def test_example(client, mock_dependency):
+    """測試描述。"""
+    # Arrange - 準備測試資料和依賴
+    test_data = {...}
+    expected_result = {...}
+    mock_dependency.method.return_value = Mock(...)
+    target = SystemUnderTest(dependency=mock_dependency)
+
+    # Act - 執行受測操作
+    result = target.execute(test_data)
+
+    # Assert - 驗證結果
+    assert result == expected_result
+    mock_dependency.method.assert_called_once()
+```
+
+#### 2. 受測對象命名為 `target`
+
+- **target 必須是「受測對象」**（System Under Test），不是測試工具
+- 正確：`target = SignupUseCase(...)` - Use Case 是受測對象
+- 錯誤：`target = TestClient(...)` - TestClient 是測試工具
+
+#### 3. 區塊功能嚴格分離
+
+**Arrange 區塊**：
+
+- ✅ 準備測試資料變數
+- ✅ 設定 mock 行為
+- ✅ 建立受測對象
+- ❌ 不可執行受測操作
+- ❌ 不可驗證結果
+
+**Act 區塊**：
+
+- ✅ 只執行一行受測操作
+- ❌ 不可準備測試資料
+- ❌ 不可驗證結果
+
+**Assert 區塊**：
+
+- ✅ 驗證執行結果
+- ✅ 驗證 mock 呼叫
+- ❌ 不可準備測試資料
+- ❌ 不可執行受測操作
+
+#### 4. 變數命名規範
+
+- 測試資料：`signup_data`, `login_data`, `request_data`
+- 預期結果：`expected_result`, `expected_user`, `expected_response`
+- 錯誤訊息：`error_message`, `expected_error`
+- Mock 物件：`mock_supabase`, `mock_repository`, `mock_service`
+
+#### 5. 完整範例
+
+```python
+def test_signup_use_case_success():
+    """測試註冊成功。"""
+    # Arrange - 準備測試資料和依賴
+    signup_data = {
+        "email": "test@example.com",
+        "password": "password123"
+    }
+    expected_user_id = "123e4567-e89b-12d3-a456-426614174000"
+    expected_user = User(id=expected_user_id, email="test@example.com")
+    mock_supabase = Mock()
+    mock_supabase.auth.sign_up.return_value = Mock(
+        user=Mock(id=expected_user_id, email="test@example.com")
+    )
+    target = SignupUseCase(supabase_client=mock_supabase)
+
+    # Act - 執行受測操作
+    result = target.execute(
+        email=signup_data["email"],
+        password=signup_data["password"]
+    )
+
+    # Assert - 驗證結果
+    assert result.user == expected_user
+    assert result.message == "User created successfully"
+    mock_supabase.auth.sign_up.assert_called_once_with(signup_data)
+```
+
+### 測試覆蓋率目標
+
+- **Domain Layer**：100%（簡單邏輯，必須全覆蓋）
+- **Use Case Layer**：80%+（核心業務邏輯）
+- **Adapter Layer**：0%（不寫測試）
+- **總覆蓋率目標**：70%+
+
+---
+
+## Clean Architecture 分層
+
+本專案採用 Clean Architecture：
+
+```text
+┌─────────────────────────────────────┐
+│ Adapter Layer (Frameworks & Drivers)│  ← 不寫測試
+│  - FastAPI endpoints (thin layer)   │
+│  - External service adapters         │
+└─────────────────┬───────────────────┘
+                  ↓
+┌─────────────────────────────────────┐
+│ Use Case Layer (Application Logic)  │  ← TDD 單元測試
+│  - SignupUseCase                    │
+│  - LoginUseCase                     │
+│  - TrackProductUseCase              │
+└─────────────────┬───────────────────┘
+                  ↓
+┌─────────────────────────────────────┐
+│ Domain Layer (Entities & Business)  │  ← TDD 單元測試
+│  - User, Product entities           │
+│  - Value Objects                    │
+│  - Domain logic                     │
+└─────────────────────────────────────┘
+```
+
+### 開發順序（由內而外）
+
+1. **Domain Layer** - 先定義 Entity 和 Value Object
+2. **Use Case Layer** - TDD 實作業務邏輯
+3. **Adapter Layer** - 最後加上薄薄的 API 層
