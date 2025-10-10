@@ -5,7 +5,7 @@ from fastapi import APIRouter
 from app.adapters.repositories.supabase_database_repository import (
     SupabaseDatabaseRepository,
 )
-from app.adapters.supabase_client import get_supabase_client
+from app.infrastructure.supabase_client import get_supabase_client
 from app.use_cases.health.health_check_use_case import HealthCheckUseCase
 
 router = APIRouter(tags=["System"])

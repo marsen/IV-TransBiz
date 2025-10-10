@@ -12,7 +12,7 @@ from app.adapters.api.schemas.auth import (
 from app.adapters.repositories.supabase_auth_repository import (
     SupabaseAuthRepository,
 )
-from app.adapters.supabase_client import get_supabase_client
+from app.infrastructure.supabase_client import get_supabase_client
 from app.use_cases.auth.login_use_case import LoginUseCase
 from app.use_cases.auth.signup_use_case import SignupUseCase
 
