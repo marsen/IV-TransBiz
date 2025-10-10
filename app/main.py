@@ -12,9 +12,8 @@ app = FastAPI(
     title="Amazon Product Monitoring API",
     version="0.1.0",
     description="Amazon 產品監控與優化工具 - 追蹤產品表現、分析競爭對手並提供優化建議",
-    # docs_url="/docs" - 使用 Scalar 取代預設的 Swagger UI
-    docs_url="/swagger",  # Swagger UI 改為 /swagger (備用)
-    redoc_url=None,  # 停用 ReDoc (唯讀，無法測試)
+    docs_url=None,  # 停用 Swagger UI - 使用 Scalar 取代
+    redoc_url=None,  # 停用 ReDoc
 )
 
 # 註冊 routers

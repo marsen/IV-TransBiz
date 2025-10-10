@@ -558,16 +558,17 @@ So that 我可以了解如何使用 API
 
 **驗收標準**：
 
-- [ ] FastAPI 自動生成 Swagger UI：`/docs`
+- [x] API 文件系統：使用 Scalar UI 取代 Swagger UI（`/docs`）
 - [ ] 所有 endpoint 有描述
 - [ ] Request/Response 有 schema 定義
 - [ ] 包含範例資料
 
 **技術實作**：
 
-- FastAPI 內建支援
+- FastAPI 自動生成 OpenAPI schema
 - 使用 Pydantic models 定義 schema
-- 使用 Scalar 生成更美觀的文件（`/scalar`）
+- 使用 Scalar 生成現代化文件（`/docs`）
+- 已停用 Swagger UI 和 ReDoc
 
 ---
 

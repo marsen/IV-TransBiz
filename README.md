@@ -59,7 +59,7 @@ uv sync
 uv run uvicorn app.main:app --reload
 ```
 
-訪問 <http://localhost:8000/docs> 查看 API 文件
+訪問 <http://localhost:8000/docs> 查看 API 文件（使用 Scalar UI）
 
 ## 開發工具
 
