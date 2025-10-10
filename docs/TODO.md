@@ -8,54 +8,43 @@
 ✅ 開發環境文件已完成（DEVELOPMENT.md）
 ✅ Git 敏感資料已清理
 
-## 當前任務（2025-10-09）
+## 當前任務（2025-10-10）
 
 ### 🚧 Story 4.1: 使用者認證（P0 - MVP 必須）
 
-**Phase 1: 註冊功能 (Signup)** - 🚧 進行中
+**測試策略**: 只寫 Use Case Layer 的單元測試，Adapter Layer 不寫測試（用 Scalar 手動測試）
 
-測試案例 (TDD - RED):
+**Phase 1: Domain & Use Case Layer (TDD)** - ✅ 已完成
 
-- [x] test_signup_success - 註冊成功 (201)
-- [x] test_signup_email_already_exists - Email 已存在 (400)
-- [ ] test_signup_invalid_email_format - 無效 email 格式 (422) 🔴 P0
-- [ ] test_signup_missing_email - 缺少 email 欄位 (422) 🔴 P0
-- [ ] test_signup_missing_password - 缺少 password 欄位 (422) 🔴 P0
+- [x] User Entity 實作與測試
+- [x] SignupUseCase 單元測試 (RED)
+- [x] SignupUseCase 實作 (GREEN)
+- [x] LoginUseCase 單元測試 (RED)
+- [x] LoginUseCase 實作 (GREEN)
 
-實作任務 (TDD - GREEN):
+**Phase 1.5: Repository Pattern 重構** - ✅ 已完成
 
-- [ ] 建立 auth schemas (SignupRequest, SignupResponse)
-- [ ] 建立 auth router (`/api/v1/auth/signup`)
+- [x] 建立 AuthRepository 抽象介面 (ports.py)
+- [x] 實作 SupabaseAuthRepository
+- [x] 重構測試改為 mock Repository (RED)
+- [x] 重構 Use Cases 使用 Repository (GREEN)
+
+**Phase 2: Adapter Layer (API Endpoints)** - 🚧 進行中
+
+- [x] 建立 auth schemas (SignupRequest/Response, LoginRequest/Response)
+- [ ] 建立 auth router (`/api/v1/auth/signup` & `/login`)
 - [ ] 註冊 router 到 main.py
-- [ ] 驗證測試通過 (GREEN)
 
-**Phase 2: 登入功能 (Login)** - ⏸️ 待開始
+**Phase 3: 手動測試** - ⏸️ 待開始
 
-測試案例:
-
-- [ ] test_login_success - 登入成功返回 JWT (200)
-- [ ] test_login_invalid_password - 錯誤密碼 (401)
-
-實作任務:
-
-- [ ] 建立 login endpoint (`/api/v1/auth/login`)
-- [ ] 驗證測試通過
-
-**Phase 3: 認證中介層 (Auth Middleware)** - ⏸️ 待開始
-
-測試案例:
-
-- [ ] test_unauthorized_access - 未登入訪問受保護 API (401)
-
-實作任務:
-
-- [ ] 實作 get_current_user() dependency
-- [ ] 為受保護 API 加上認證檢查
-- [ ] 驗證測試通過
+- [ ] 透過 Scalar docs 測試 signup endpoint
+- [ ] 透過 Scalar docs 測試 login endpoint
+- [ ] 驗證回應格式正確
 
 **Supabase 設定**:
 
 - [x] 設定 Supabase 連線與環境變數
+- [x] 實作 fail-fast 驗證
 
 ### 📝 Story 1.1: 新增追蹤產品（P0 - MVP 必須）
 
