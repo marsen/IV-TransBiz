@@ -3,6 +3,7 @@
 from dataclasses import dataclass
 
 from app.domain.entities.user import User
+from app.use_cases.auth.ports import AuthRepository
 
 
 @dataclass
@@ -16,13 +17,13 @@ class SignupResult:
 class SignupUseCase:
     """註冊 Use Case - 主程式邏輯。"""
 
-    def __init__(self, supabase_client):
+    def __init__(self, auth_repo: AuthRepository):
         """初始化 SignupUseCase。
 
         Args:
-            supabase_client: Supabase client 實例
+            auth_repo: Auth Repository 實例（依賴抽象）
         """
-        self.supabase = supabase_client
+        self.auth_repo = auth_repo
 
     def execute(self, email: str, password: str) -> SignupResult:
         """執行註冊邏輯。
@@ -37,11 +38,8 @@ class SignupUseCase:
         Raises:
             Exception: 當註冊失敗時（例如 email 已存在）
         """
-        # 呼叫 Supabase Auth API
-        response = self.supabase.auth.sign_up({"email": email, "password": password})
-
-        # 建立 User entity
-        user = User(id=response.user.id, email=response.user.email)
+        # 透過 Repository 執行註冊
+        user = self.auth_repo.signup(email, password)
 
         # 返回結果
         return SignupResult(user=user, message="User created successfully")
