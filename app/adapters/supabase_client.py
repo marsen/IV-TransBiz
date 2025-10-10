@@ -2,7 +2,7 @@
 
 from supabase import Client, create_client
 
-from app.config import SUPABASE_ANON_KEY, SUPABASE_URL
+from app.infrastructure.config import SUPABASE_ANON_KEY, SUPABASE_URL
 
 # Module-level singleton
 _supabase_client: Client | None = None
