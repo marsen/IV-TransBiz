@@ -29,17 +29,20 @@
 - [x] 重構測試改為 mock Repository (RED)
 - [x] 重構 Use Cases 使用 Repository (GREEN)
 
-**Phase 2: Adapter Layer (API Endpoints)** - 🚧 進行中
+**Phase 2: Adapter Layer (API Endpoints)** - ✅ 已完成
 
 - [x] 建立 auth schemas (SignupRequest/Response, LoginRequest/Response)
-- [ ] 建立 auth router (`/api/v1/auth/signup` & `/login`)
-- [ ] 註冊 router 到 main.py
+- [x] 建立 auth router (`/api/v1/auth/signup` & `/login`)
+- [x] 註冊 router 到 main.py
+- [x] 建立 health check router (Clean Architecture 重構)
+- [x] 重構 main.py 使用 routers
 
-**Phase 3: 手動測試** - ⏸️ 待開始
+**Phase 3: 手動測試** - ✅ 已完成
 
-- [ ] 透過 Scalar docs 測試 signup endpoint
-- [ ] 透過 Scalar docs 測試 login endpoint
-- [ ] 驗證回應格式正確
+- [x] 透過 Scalar docs 測試 signup endpoint
+- [x] 透過 Scalar docs 測試 login endpoint
+- [x] 驗證回應格式正確
+- [x] 測試 health check endpoint
 
 **Supabase 設定**:
 
